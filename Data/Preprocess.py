@@ -1,16 +1,16 @@
 import os
 import re
 
-def main():
-    data_file = open('process2.log')
+def CreateSummaryFiles(inpath, outpath1, outpath2):
+    data_file = open(inpath)
     current_name = ''
     current_tid = 0
     current_type = ''
     current_file = ''
     current_amount = 0
     dictionary = {}
-    data_output1 = open('output1.log', 'w')
-    data_output2 = open('output2.log', 'w')
+    data_output1 = open(outpath1, 'w')
+    data_output2 = open(outpath2, 'w')
 
     for line in data_file:
         elements = line.split(' ')
@@ -74,6 +74,9 @@ def main():
         data_output2.write('\n')
 
     return
+
+def main():
+    CreateSummaryFiles('process2.log', 'summary1.log', 'summary2.log')
 
 if __name__ == '__main__':
     main()
