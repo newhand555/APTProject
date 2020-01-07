@@ -1,6 +1,5 @@
 import os
 import re
-import argparse
 
 def CreateSummaryFiles(inpath, outpath1, outpath2):
     data_file = open(inpath)
@@ -46,15 +45,12 @@ def CreateSummaryFiles(inpath, outpath1, outpath2):
         proc_file = re.sub(r'.*\(', '', elements[6])[:-1]
 
         if proc_name not in dictionary.keys():
-            dictionary[proc_name] = {}
-            # dictionary[proc_name] = {'write': {}, 'read': {}}
-        if proc_tid not in dictionary[proc_name].keys():
-            dictionary[proc_name][proc_tid] = {'write': {}, 'read': {}}
+            dictionary[proc_name] = {'write': {}, 'read': {}}
 
-        if proc_file not in dictionary[proc_name][proc_tid][proc_type].keys():
-            dictionary[proc_name][proc_tid][proc_type][proc_file] = proc_size
+        if proc_file not in dictionary[proc_name][proc_type].keys():
+            dictionary[proc_name][proc_type][proc_file] = proc_size
         else:
-            dictionary[proc_name][proc_tid][proc_type][proc_file] += proc_size
+            dictionary[proc_name][proc_type][proc_file] += proc_size
 
         if current_name != proc_name or current_type != proc_type or current_file != proc_file:
             if current_tid != 0:
@@ -72,22 +68,14 @@ def CreateSummaryFiles(inpath, outpath1, outpath2):
         data_output1.write('{}, {}, {}, {}, {}\n'.format(current_name, current_tid, current_type, current_file, current_amount))
 
     for k1 in dictionary.keys():
-        # print(k1, dictionary[k1])
-        tempdict = {}
-
-        for k2 in dictionary[k1].keys():
-            for k3 in dictionary[k1][k2]['write'].keys():
-                if k3 not in tempdict.keys():
-                    tempdict[k3] = 0
-                tempdict[k3] += dictionary[k1][k2]['write'][k3]
-
+        print(k1, dictionary[k1])
         data_output2.write('{0:16}'.format(k1))
         # data_output2.write('\n')
         data_output2.write('write to ')
 
         wrs = ''
-        for k in tempdict.keys():
-            wrs += (k + '(' + str(tempdict[k]) + ') , ')
+        for k2 in dictionary[k1]['write'].keys():
+            wrs += (k2 + '(' + str(dictionary[k1]['write'][k2]) + ') , ')
 
         wrs = re.sub(r' , $', '', wrs)
         data_output2.write(wrs)
@@ -95,38 +83,19 @@ def CreateSummaryFiles(inpath, outpath1, outpath2):
         data_output2.write('\n                ')
         data_output2.write('read to ')
 
-        tempdict = {}
-
-        for k2 in dictionary[k1].keys():
-            for k3 in dictionary[k1][k2]['read'].keys():
-                if k3 not in tempdict.keys():
-                    tempdict[k3] = 0
-                tempdict[k3] += dictionary[k1][k2]['read'][k3]
-
         wrs = ''
-        # for k2 in dictionary[k1]['read'].keys():
-        #     wrs += (k2 + '(' + str(dictionary[k1]['read'][k2]) + ') , ')
-        #
-        for k in tempdict.keys():
-            wrs += (k + '(' + str(tempdict[k]) + ') , ')
+        for k2 in dictionary[k1]['read'].keys():
+            wrs += (k2 + '(' + str(dictionary[k1]['read'][k2]) + ') , ')
+
         wrs = re.sub(r' , $', '', wrs)
         data_output2.write(wrs)
 
         data_output2.write('\n')
 
-    return dictionary
+    return
 
-def main(opts):
-    dictionary = CreateSummaryFiles(opts.input_dir, opts.summary1_dir, opts.summary2_dir)
-
+def main():
+    CreateSummaryFiles('process2.log', 'summary1.log', 'summary2.0.log')
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--input_dir', type=str, default='process2.log')
-    parser.add_argument('--summary1_dir', type=str, default='summary1.log')
-    parser.add_argument('--summary2_dir', type=str, default='summary2.log')
-    # parser.add_argument("--prog_name", type=str, default='grep')
-    # parser.add_argument("--pid", type=int, default=8688)
-    # parser.add_argument("--pid", type=int, default=14227)
-    opts = parser.parse_args()
-    main(opts)
+    main()
